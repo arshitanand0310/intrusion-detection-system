@@ -3,31 +3,57 @@
 import time
 from collections import defaultdict, deque
 
-REQUEST_LIMIT = 30
-WINDOW_SECONDS = 10
-
+# Track timestamps of requests per IP
 request_log = defaultdict(deque)
-rate_limit_alerted = set()   # 🔥 NEW
+
+# Prevent repeated block spam
+rate_limit_alerted = set()
+
+# CONFIG
+WINDOW_SECONDS = 5          # sliding window
+LOW_RPS = 10
+MEDIUM_RPS = 20
+HIGH_RPS = 30
+
+
+def get_rps(ip: str) -> int:
+    """Return requests-per-second for given IP"""
+    now = time.time()
+    q = request_log[ip]
+
+    # Remove old timestamps
+    while q and q[0] < now - WINDOW_SECONDS:
+        q.popleft()
+
+    return int(len(q) / WINDOW_SECONDS)
+
+
+def register_request(ip: str):
+    request_log[ip].append(time.time())
 
 
 def is_rate_limited(ip: str) -> bool:
-    now = time.time()
-    window_start = now - WINDOW_SECONDS
+    register_request(ip)
+    rps = get_rps(ip)
 
-    timestamps = request_log[ip]
+    return rps >= LOW_RPS
 
-    while timestamps and timestamps[0] < window_start:
-        timestamps.popleft()
 
-    timestamps.append(now)
+def get_ddos_severity(ip: str) -> str:
+    rps = get_rps(ip)
 
-    return len(timestamps) > REQUEST_LIMIT
+    if rps >= HIGH_RPS:
+        return "HIGH"
+    elif rps >= MEDIUM_RPS:
+        return "MEDIUM"
+    elif rps >= LOW_RPS:
+        return "LOW"
+    else:
+        return "NONE"
 
 
 def should_log_rate_limit(ip: str) -> bool:
-    """
-    Ensures rate limit alert is logged only ONCE per IP.
-    """
+    """Log/block only once per IP"""
     if ip in rate_limit_alerted:
         return False
 

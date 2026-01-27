@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Circular Background -->
+  <circle cx="256" cy="256" r="256" fill="#000000"/>
+  
+  <!-- Modern shield shape -->
+  <path d="M256 60 L420 110 L420 240 Q420 340 256 450 Q92 340 92 240 L92 110 Z" 
+        fill="none" 
+        stroke="#DC2626" 
+        stroke-width="20"
+        stroke-linejoin="round"/>
+  
+  <!-- Inner shield fill with gradient effect -->
+  <path d="M256 85 L395 125 L395 240 Q395 325 256 420 Q117 325 117 240 L117 125 Z" 
+        fill="#1A1A1A"/>
+  
+  <!-- Hexagon center element -->
+  <path d="M256 180 L310 210 L310 270 L256 300 L202 270 L202 210 Z" 
+        fill="#DC2626" 
+        stroke="#FF0000" 
+        stroke-width="3"/>
+  
+  <!-- Alert/Warning triangle inside hexagon -->
+  <path d="M256 220 L275 260 L237 260 Z" 
+        fill="#000000"/>
+  
+  <!-- Exclamation point -->
+  <rect x="252" y="230" width="8" height="18" fill="#000000"/>
+  <circle cx="256" cy="254" r="3" fill="#000000"/>
+  
+  <!-- Corner accents (tech look) -->
+  <line x1="140" y1="150" x2="170" y2="150" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+  <line x1="140" y1="150" x2="140" y2="180" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+  
+  <line x1="372" y1="150" x2="342" y2="150" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+  <line x1="372" y1="150" x2="372" y2="180" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Bottom text -->
+  <text x="256" y="360" 
+        font-family="'Courier New', monospace" 
+        font-size="45" 
+        font-weight="bold" 
+        fill="#DC2626" 
+        text-anchor="middle"
+        letter-spacing="8">IDS</text>
+</svg>

@@ -4,7 +4,7 @@ import AlertsTable from "../components/AlertsTable";
 import BlockedIPs from "../components/BlockedIPs";
 import SeverityChart from "../components/SeverityChart";
 
-const REFRESH_INTERVAL = 5000; // 5 seconds
+const REFRESH_INTERVAL = 5000; 
 
 export default function Dashboard() {
   const [alerts, setAlerts] = useState([]);
@@ -25,13 +25,13 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // initial load
+    
     fetchData();
 
-    // auto-refresh
+    
     const interval = setInterval(fetchData, REFRESH_INTERVAL);
 
-    // cleanup (VERY IMPORTANT)
+    
     return () => clearInterval(interval);
   }, []);
 

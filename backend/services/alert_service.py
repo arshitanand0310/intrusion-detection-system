@@ -5,65 +5,66 @@ from backend.detector.severity import calculate_severity
 from backend.services.ip_blocker import block_ip
 
 
-# =========================================================
-# LOG-BASED ALERTS (FROM access.log)
-# =========================================================
 def save_alert(alert_data):
+    """
+    Aggregates log-based alerts per (IP + attack).
+    Prevents duplicate rows and updates attempts correctly.
+    """
     db = SessionLocal()
     try:
+        ip = alert_data["ip"]
+        attack = alert_data["attack"]
+        attempts = alert_data["attempts"]
+
+        print(f"[SAVE_ALERT] IP: {ip} | Attack: {attack} | Attempts: {attempts}")
+
         alert = (
             db.query(Alert)
             .filter(
-                Alert.ip_address == alert_data["ip"],
-                Alert.attack_type == alert_data["attack"]
+                Alert.ip_address == ip,
+                Alert.attack_type == attack
             )
             .first()
         )
 
         if alert:
-            # ✅ Aggregate attempts
-            alert.attempts += alert_data["attempts"]
-            alert.severity = calculate_severity(
-                alert.attack_type,
-                alert.attempts
+            alert.attempts = max(alert.attempts, attempts)
+            alert.severity = calculate_severity(attack, alert.attempts)
+            alert.detected_at = datetime.utcnow()
+            print(f"[SAVE_ALERT] Updated existing alert | Severity: {alert.severity}")
+        else:
+            alert = Alert(
+                ip_address=ip,
+                attack_type=attack,
+                attempts=attempts,
+                severity=calculate_severity(attack, attempts),
+                detected_at=alert_data["detected_at"]
             )
-            db.commit()
-            return
+            db.add(alert)
+            print(f"[SAVE_ALERT] Created new alert | Severity: {alert.severity}")
 
-        # 🆕 First time alert
-        severity = calculate_severity(
-            alert_data["attack"],
-            alert_data["attempts"]
-        )
-
-        alert = Alert(
-            ip_address=alert_data["ip"],
-            attack_type=alert_data["attack"],
-            attempts=alert_data["attempts"],
-            severity=severity,
-            detected_at=alert_data["detected_at"]
-        )
-
-        db.add(alert)
         db.commit()
+        print(f"[SAVE_ALERT] SUCCESS - Committed to database")
 
-        if severity == "HIGH":
-            block_ip(
-                alert_data["ip"],
-                f"{alert_data['attack']} attack"
-            )
+        if alert.severity == "HIGH":
+            print(f"[SAVE_ALERT] BLOCKING IP {ip} - HIGH severity")
+            block_ip(ip, f"{attack} attack")
 
+    except Exception as e:
+        print(f"[SAVE_ALERT] ERROR: {str(e)}")
+        db.rollback()
     finally:
         db.close()
 
 
-
-# =========================================================
-# LIVE IDS ALERTS (REAL-TIME, AGGREGATED)
-# =========================================================
 def save_live_alert(ip, attack):
+    """
+    Aggregates live IDS alerts per (IP + attack).
+    """
     db = SessionLocal()
     try:
+        print(f"[SAVE_LIVE_ALERT] IP: {ip} | Attack: {attack}")
+        
         alert = (
             db.query(Alert)
             .filter(
@@ -75,19 +76,30 @@ def save_live_alert(ip, attack):
 
         if alert:
             alert.attempts += 1
-            db.commit()
-            return
+            alert.severity = calculate_severity(attack, alert.attempts)
+            alert.detected_at = datetime.utcnow()
+            print(f"[SAVE_LIVE_ALERT] Updated | Attempts: {alert.attempts} | Severity: {alert.severity}")
+        else:
+            severity = calculate_severity(attack, 1)
+            alert = Alert(
+                ip_address=ip,
+                attack_type=attack,
+                attempts=1,
+                severity=severity,
+                detected_at=datetime.utcnow()
+            )
+            db.add(alert)
+            print(f"[SAVE_LIVE_ALERT] Created | Attempts: 1 | Severity: {severity}")
 
-        alert = Alert(
-            ip_address=ip,
-            attack_type=attack,
-            attempts=1,
-            severity="HIGH",
-            detected_at=datetime.utcnow()
-        )
-
-        db.add(alert)
         db.commit()
+        print(f"[SAVE_LIVE_ALERT] SUCCESS - Committed to database")
 
+        if alert.severity == "HIGH":
+            print(f"[SAVE_LIVE_ALERT] BLOCKING IP {ip} - HIGH severity")
+            block_ip(ip, f"{attack} (Live Detection)")
+
+    except Exception as e:
+        print(f"[SAVE_LIVE_ALERT] ERROR: {str(e)}")
+        db.rollback()
     finally:
         db.close()

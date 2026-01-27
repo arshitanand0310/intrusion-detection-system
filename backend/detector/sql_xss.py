@@ -1,9 +1,9 @@
-# backend/detector/sql_xss.py
+
 
 import re
 from backend.detector.access_log import parse_access_log
 
-# SQL Injection regex patterns
+
 SQL_PATTERNS = [
     r"union\s+select",
     r"select\s+\*",
@@ -13,7 +13,7 @@ SQL_PATTERNS = [
     r";"
 ]
 
-# XSS regex patterns
+
 XSS_PATTERNS = [
     r"<script.*?>",
     r"</script>",
@@ -30,7 +30,7 @@ def detect_sql_xss():
     for log in logs:
         request = log.get("request", "").lower() if "request" in log else ""
 
-        # SQL Injection detection
+       
         for pattern in SQL_PATTERNS:
             if re.search(pattern, request):
                 alerts.append({
@@ -42,7 +42,7 @@ def detect_sql_xss():
                 })
                 break
 
-        # XSS detection
+        
         for pattern in XSS_PATTERNS:
             if re.search(pattern, request):
                 alerts.append({

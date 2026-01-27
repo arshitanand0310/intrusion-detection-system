@@ -1,11 +1,10 @@
-# backend/detector/brute_force.py
 
 from collections import defaultdict
 from datetime import timedelta
 from backend.detector.access_log import parse_access_log
 
 TIME_WINDOW_MINUTES = 1
-MIN_BRUTEFORCE_ATTEMPTS = 5  # detection threshold
+MIN_BRUTEFORCE_ATTEMPTS = 5  
 
 
 def detect_bruteforce():
@@ -35,7 +34,7 @@ def detect_bruteforce():
                 alerts.append({
                     "ip": ip,
                     "attack": "Brute Force",
-                    "attempts": attempt_count,   # 🔥 REAL COUNT
+                    "attempts": attempt_count,   
                     "time_window": "1 minute",
                     "detected_at": window[-1]
                 })

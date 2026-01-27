@@ -1,4 +1,4 @@
-# backend/detector/access_log.py
+
 
 from datetime import datetime
 
@@ -17,7 +17,7 @@ def parse_access_log():
                     parts[0].strip(), "%Y-%m-%d %H:%M:%S"
                 )
 
-                # split ONLY on first '=' to preserve payloads
+                
                 ip = parts[1].split("=", 1)[1].strip()
                 endpoint = parts[2].split("=", 1)[1].strip()
                 status = parts[3].split("=", 1)[1].strip()
@@ -35,7 +35,7 @@ def parse_access_log():
                 })
 
             except Exception:
-                # skip malformed lines safely
+                
                 continue
 
     return logs

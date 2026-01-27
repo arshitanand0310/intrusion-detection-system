@@ -34,6 +34,8 @@ export default function AlertsTable({ alerts }) {
                             ? "high"
                             : a.severity === "MEDIUM"
                             ? "med"
+                            : a.severity === "MONITOR"
+                            ? "monitor"
                             : "low"
                         }`}
                       >

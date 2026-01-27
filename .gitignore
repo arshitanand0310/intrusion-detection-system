@@ -1,6 +1,5 @@
 
 __pycache__/
-*.pyc
 
 
 .venv/
@@ -15,8 +14,5 @@ ids.db
 
 *.mmdb
 
-
 node_modules/
 
-*.pkl
-backend/ml/model.pkl

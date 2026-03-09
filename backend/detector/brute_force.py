@@ -13,7 +13,7 @@ def detect_bruteforce():
     failed_attempts = defaultdict(list)
     alerts = []
 
-    # collect failed login timestamps per IP
+    
     for log in logs:
         if log["endpoint"] == "/login" and log["status"] == "FAIL":
             failed_attempts[log["ip"]].append(log["timestamp"])
@@ -21,7 +21,7 @@ def detect_bruteforce():
     for ip, timestamps in failed_attempts.items():
         timestamps.sort()
 
-        # sliding window
+        
         for i in range(len(timestamps)):
             window = []
             for t in timestamps:
